@@ -1,0 +1,44 @@
+services:
+  nginx:
+    image: nginx:latest
+    container_name: nginx
+    restart: unless-stopped
+    ports:
+      - 8080:80
+      - 8443:443
+    depends_on:
+      - certbot
+    volumes:
+      - ./nginx/conf.d:/etc/nginx/conf.d
+      - ./certbot/conf:/etc/letsencrypt
+      - ./certbot/www:/var/www/certbot
+      - ./logs/nginx:/var/log/nginx
+
+  certbot:
+    build:
+      context: ./certbot
+      dockerfile: Dockerfile
+    container_name: certbot
+    environment:
+      CERTBOT_EMAIL: ${CERTBOT_EMAIL}
+      CERTBOT_DOMAIN: ${CERTBOT_DOMAIN}
+    volumes:
+      - ./certbot/conf:/etc/letsencrypt
+      - ./certbot/www:/var/www/certbot
+      - ./logs/certbot:/var/log/letsencrypt
+      - /var/run/docker.sock:/var/run/docker.sock
+    restart: unless-stopped
+
+  helloworld:
+    image: crccheck/hello-world
+    container_name: helloworld
+    ports:
+      - 3000:8000
+
+volumes:
+  redis-data:
+  mysql-data:
+
+networks:
+  local-network:
+    driver: bridge

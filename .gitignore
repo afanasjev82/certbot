@@ -1,0 +1,3 @@
+logs/*
+certbot/conf/*
+certbot/www/*
