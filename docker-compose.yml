@@ -1,6 +1,8 @@
 services:
   nginx:
-    image: nginx:latest
+    build:
+      context: ./nginx
+      dockerfile: Dockerfile
     container_name: nginx
     restart: unless-stopped
     ports:
@@ -9,35 +11,41 @@ services:
     depends_on:
       - certbot
     volumes:
-      - ./nginx/conf.d:/etc/nginx/conf.d
-      - ./certbot/conf:/etc/letsencrypt
-      - ./certbot/www:/var/www/certbot
-      - ./logs/nginx:/var/log/nginx
+      - ./nginx/conf.d/:/etc/nginx/conf.d/
+      - ./nginx/logs/:/var/log/nginx/
+      - ./certbot/conf/:/etc/letsencrypt/:ro
+      - ./certbot/www/:/var/www/certbot/:ro
+    environment:
+      - DOMAIN=${CERTBOT_DOMAIN}
+    networks:
+      - local-network
 
   certbot:
     build:
       context: ./certbot
       dockerfile: Dockerfile
     container_name: certbot
+    restart: unless-stopped
     environment:
       CERTBOT_EMAIL: ${CERTBOT_EMAIL}
       CERTBOT_DOMAIN: ${CERTBOT_DOMAIN}
     volumes:
-      - ./certbot/conf:/etc/letsencrypt
-      - ./certbot/www:/var/www/certbot
-      - ./logs/certbot:/var/log/letsencrypt
+      - ./certbot/conf/:/etc/letsencrypt/
+      - ./certbot/www/:/var/www/certbot/
+      - ./certbot/logs:/var/log/letsencrypt/
       - /var/run/docker.sock:/var/run/docker.sock
-    restart: unless-stopped
+    networks:
+      - local-network
+    
 
   helloworld:
     image: crccheck/hello-world
     container_name: helloworld
     ports:
       - 3000:8000
+    networks:
+      - local-network
 
-volumes:
-  redis-data:
-  mysql-data:
 
 networks:
   local-network:

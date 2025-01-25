@@ -1,7 +1,7 @@
 server {
     listen 80;
     listen [::]:80;
-    server_name afanasjev.asuscomm.com;
+    server_name {domain};
     server_tokens off;  
 
     # Redirect all traffic to HTTPS
@@ -13,14 +13,14 @@ server {
 server {
     listen 443 ssl;
     listen [::]:443 ssl;
-    server_name afanasjev.asuscomm.com;
+    server_name {domain};
 
     # Enable HTTP/2 using separate directives if supported
     http2 on;
 
     # SSL configuration
-    ssl_certificate /etc/letsencrypt/live/afanasjev.asuscomm.com/fullchain.pem;
-    ssl_certificate_key /etc/letsencrypt/live/afanasjev.asuscomm.com/privkey.pem;
+    ssl_certificate /etc/letsencrypt/live/{domain}/fullchain.pem;
+    ssl_certificate_key /etc/letsencrypt/live/{domain}/privkey.pem;
 
     # Security headers
     ssl_protocols TLSv1.2 TLSv1.3;

@@ -2,6 +2,7 @@
 
 # Exit immediately if a command exits with a non-zero status
 set -e
+echo "Starting Certbot for DOMAIN=${CERTBOT_DOMAIN}"
 
 # Obtain the initial certificate
 certbot certonly --webroot --webroot-path=/var/www/certbot \
@@ -10,7 +11,12 @@ certbot certonly --webroot --webroot-path=/var/www/certbot \
 
 # Start the renewal loop
 while :; do
-  certbot renew --webroot --webroot-path=/var/www/certbot --quiet
+
+  # Renew the SSL certificates
+  certbot renew \
+    --webroot \
+    --webroot-path=/var/www/certbot
+
   if [ $? -eq 0 ]; then
     # Reload the Nginx container to apply the renewed certificate
     docker exec nginx nginx -s reload
